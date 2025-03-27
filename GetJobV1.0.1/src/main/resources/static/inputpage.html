@@ -93,7 +93,7 @@
                     <div class="bg-green-100 p-6 rounded-md">
                         <h3 class="text-xl font-semibold text-green-800">사용 도구 및 기술</h3>
                         <textarea placeholder="사용 도구 및 기술을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
-                    </div>  
+                    </div>
                     <div class="bg-green-100 p-6 rounded-md">
                         <h3 class="text-xl font-semibold text-green-800">피드백</h3>
                         <textarea placeholder="피드백을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
@@ -203,134 +203,224 @@ function openPopup(popupId) {
 
     // 저장 버튼 클릭 시 빈 칸 확인 및 처리
     function handleSave() {
-        const inputs = document.querySelectorAll("input[type='text'], textarea");
-        let isEmpty = false;
 
-        inputs.forEach(input => {
-            if (!input.value.trim()) {
-                isEmpty = true;
-            }
-        });
-
-        if (isEmpty) {
-            openPopup("warningPopup");
-        } else {
-            openPopup("savePopup"); // 저장 완료 팝업 열기
-        }
     }
 
     // 페이지 이탈 감지 (브라우저 닫기 또는 새로고침 시)
-    window.onbeforeunload = function (e) {
-        e.preventDefault();
-        openPopup("leavePopup");
-        return "변경사항이 저장되지 않을 수 있습니다.";
+    window.addEventListener("beforeunload", function (e) {
+
+
+    openPopup("leavePopup");
+    return null;
+    });
+
+
+    async function handleSave() {
+    const inputs = document.querySelectorAll("input[type='text'], textarea");
+    let isEmpty = false;
+
+    // Validate all text and textarea fields
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            isEmpty = true;
+        }
+    });
+
+    if (isEmpty) {
+        openPopup("warningPopup");
+        return;
+    }
+
+    const title = document.querySelector("input[placeholder='주제를 입력해주세요']").value;
+    const startDate = document.querySelectorAll("input[type='date']")[0].value;
+    const endDate = document.querySelectorAll("input[type='date']")[1].value;
+    const teamSize = parseInt(document.querySelector("input[placeholder='인원을 입력해주세요']").value);
+    const skills = document.querySelector("input[placeholder='스킬을 입력해주세요']").value;
+    const role = document.querySelector(".role-button.bg-blue-500").id;
+
+    // Date validation
+    if (new Date(startDate) > new Date(endDate)) {
+        alert("시작 날짜가 종료 날짜보다 늦을 수 없습니다!");
+        return;
+    }
+
+    // Team size validation
+    if (isNaN(teamSize) || teamSize <= 0) {
+        alert("팀 인원은 숫자로 입력해야 합니다!");
+        return;
+    }
+
+    // Image upload handling
+    const images = document.getElementById("imageUpload").files;
+    const formData = new FormData();
+
+    if (images.length > 0) {
+        for (let i = 0; i < images.length; i++) {
+            formData.append("images", images[i]);
+        }
+
+        try {
+            const imageResponse = await fetch("/api/upload-images", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!imageResponse.ok) {
+                alert("이미지 업로드 실패!");
+                return;
+            }
+        } catch (error) {
+            console.error("이미지 업로드 오류:", error);
+            alert("네트워크 오류 또는 서버 문제로 인해 이미지 업로드에 실패했습니다.");
+            return;
+        }
+    }
+
+    // Collect descriptions from textareas
+    const descriptions = Array.from(document.querySelectorAll("#section-container textarea"))
+        .map(textarea => textarea.value);
+
+    const data = {
+        title,
+        startDate,
+        endDate,
+        teamSize,
+        skills,
+        role,
+        descriptions
     };
-</script>
+
+    try {
+        // Project data submission
+        const response = await fetch("/api/portfolios", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            openPopup("savePopup"); // Open save confirmation popup
+        } else {
+            const errorData = await response.json();
+            console.error("저장 실패:", errorData);
+            alert(`저장 실패: ${errorData.message || "알 수 없는 오류"}`);
+        }
+    } catch (error) {
+        console.error("오류 발생:", error);
+        alert("네트워크 오류 또는 서버 문제로 인해 저장에 실패했습니다.");
+    }
+}
+
+
+    </script>
 
     <style>
 
-    .popup {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-    }
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
 
-    .popup-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
 
-    .hidden {
-        display: none;
-    }
-</style>
+        .hidden {
+            display: none;
+        }
+    </style>
 
 
 </head>
 
 
 <body class="font-sans bg-gray-100">
-    <!-- Header -->
-    <header class="flex justify-between items-center p-6 bg-white shadow-md">
-        <a href="mainpage2.html" class="text-3xl font-bold">GET JOB</a>
-        <nav class="space-x-8 text-lg">
-            <a href="portfoliopage.html" class="hover:underline">포트폴리오</a>
-            <a href="#" class="hover:underline">AI 서비스</a>
-            <a href="#" class="hover:underline">로그아웃</a>
-        </nav>
-    </header>
+<!-- Header -->
+<header class="flex justify-between items-center p-6 bg-white shadow-md">
+    <a href="mainpage2.html" class="text-3xl font-bold">GET JOB</a>
+    <nav class="space-x-8 text-lg">
+        <a href="portfoliopage.html" class="hover:underline">포트폴리오</a>
+        <a href="#" class="hover:underline">AI 서비스</a>
+        <a href="#" class="hover:underline">로그아웃</a>
+    </nav>
+</header>
 
-    <!-- Form Section -->
-    <section class="px-20 py-10">
-        <h2 class="text-4xl font-semibold mb-8">제목</h2>
+<!-- Form Section -->
+<section class="px-20 py-10">
+    <h2 class="text-4xl font-semibold mb-8">제목</h2>
 
-        <!-- Input Form -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <input type="text" placeholder="주제를 입력해주세요" class="col-span-2 p-4 border rounded-md">
-            <div class="grid grid-cols-2 gap-2">
-                <input type="date" class="p-4 border rounded-md">
-                <input type="date" class="p-4 border rounded-md">
-            </div>
-            <input type="text" placeholder="인원을 입력해주세요" class="col-span-2 p-4 border rounded-md">
-            <input type="text" placeholder="스킬을 입력해주세요" class="p-4 border rounded-md">
-            <div class="flex space-x-4">
-                <button id="developer" class="role-button px-6 py-2 bg-blue-500 text-white rounded-md" onclick="toggleRole('developer')">개발자</button>
-                <button id="pm" class="role-button px-6 py-2 bg-gray-200 text-gray-600 rounded-md" onclick="toggleRole('pm')">기획</button>
-                <button id="designer" class="role-button px-6 py-2 bg-gray-200 text-gray-600 rounded-md" onclick="toggleRole('designer')">디자이너</button>
-                
-            </div>
-            <button class="p-4 bg-gray-200 text-gray-600 rounded-md" onclick="document.getElementById('imageUpload').click();">이미지 업로드</button>
-            <input type="file" id="imageUpload" accept="image/*" class="hidden" multiple onchange="previewImages(event)">
+    <!-- Input Form -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <input type="text" placeholder="주제를 입력해주세요" class="col-span-2 p-4 border rounded-md">
+        <div class="grid grid-cols-2 gap-2">
+            <input type="date" class="p-4 border rounded-md">
+            <input type="date" class="p-4 border rounded-md">
+        </div>
+        <input type="text" placeholder="인원을 입력해주세요" class="col-span-2 p-4 border rounded-md">
+        <input type="text" placeholder="스킬을 입력해주세요" class="p-4 border rounded-md">
+        <div class="flex space-x-4">
+            <button id="developer" class="role-button px-6 py-2 bg-blue-500 text-white rounded-md" onclick="toggleRole('developer')">개발자</button>
+            <button id="pm" class="role-button px-6 py-2 bg-gray-200 text-gray-600 rounded-md" onclick="toggleRole('pm')">기획</button>
+            <button id="designer" class="role-button px-6 py-2 bg-gray-200 text-gray-600 rounded-md" onclick="toggleRole('designer')">디자이너</button>
 
         </div>
-        <!-- 이미지 미리보기 영역 -->
-        <div id="imagePreview" class="mt-4 grid grid-cols-5 gap-4"></div>
+        <button class="p-4 bg-gray-200 text-gray-600 rounded-md" onclick="document.getElementById('imageUpload').click();">이미지 업로드</button>
+        <input type="file" id="imageUpload" accept="image/*" class="hidden" multiple onchange="previewImages(event)">
 
-        <!-- Dynamic Section Container -->
-        <div id="section-container" class="space-y-6"></div>
-
-        <!-- 경고 팝업 (필수 입력란 미완성 시) -->
-<div id="warningPopup" class="popup hidden">
-    <p class="text-lg mb-4">완료된 프로젝트만 게시할 수 있습니다.</p>
-    <button onclick="closePopup('warningPopup')" class="px-4 py-2 bg-blue-500 text-white rounded-md">확인</button>
-</div>
-
-<!-- 이탈 확인 팝업 (사이트에서 나갈 때) -->
-<div id="leavePopup" class="popup hidden">
-    <p class="text-lg mb-2">사이트에서 나가시겠습니까?</p>
-    <p class="text-sm text-gray-600 mb-4">변경사항이 저장되지 않을 수 있습니다.</p>
-    <div class="flex justify-center space-x-4">
-        <button onclick="leaveSite()" class="px-4 py-2 bg-blue-500 text-white rounded-md">나가기</button>
-        <button onclick="closePopup('leavePopup')" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md">취소</button>
     </div>
-</div>
+    <!-- 이미지 미리보기 영역 -->
+    <div id="imagePreview" class="mt-4 grid grid-cols-5 gap-4"></div>
 
-<!-- 저장 완료 팝업 -->
-<div id="savePopup" class="popup hidden">
-    <p class="text-lg mb-4">프로젝트가 성공적으로 저장되었습니다.</p>
-    <button onclick="redirectToPortfolio()" class="px-4 py-2 bg-blue-500 text-white rounded-md">확인</button>
-</div>
+    <!-- Dynamic Section Container -->
+    <div id="section-container" class="space-y-6"></div>
 
-<!-- 팝업 오버레이 -->
-<div id="popupOverlay" class="popup-overlay hidden" onclick="closeAllPopups()"></div>
+    <!-- 경고 팝업 (필수 입력란 미완성 시) -->
+    <div id="warningPopup" class="popup hidden">
+        <p class="text-lg mb-4">완료된 프로젝트만 게시할 수 있습니다.</p>
+        <button onclick="closePopup('warningPopup')" class="px-4 py-2 bg-blue-500 text-white rounded-md">확인</button>
+    </div>
 
-<!-- Submit Button -->
-<div class="mt-10 text-center">
-    <button onclick="handleSave()" class="px-10 py-3 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600">저장하기</button>
-</div>
+    <!-- 이탈 확인 팝업 (사이트에서 나갈 때) -->
+    <div id="leavePopup" class="popup hidden">
+        <p class="text-lg mb-2">사이트에서 나가시겠습니까?</p>
+        <p class="text-sm text-gray-600 mb-4">변경사항이 저장되지 않을 수 있습니다.</p>
+        <div class="flex justify-center space-x-4">
+            <button onclick="leaveSite()" class="px-4 py-2 bg-blue-500 text-white rounded-md">나가기</button>
+            <button onclick="closePopup('leavePopup')" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md">취소</button>
+        </div>
+    </div>
+
+    <!-- 저장 완료 팝업 -->
+    <div id="savePopup" class="popup hidden">
+        <p class="text-lg mb-4">프로젝트가 성공적으로 저장되었습니다.</p>
+        <button onclick="redirectToPortfolio()" class="px-4 py-2 bg-blue-500 text-white rounded-md">확인</button>
+    </div>
+
+    <!-- 팝업 오버레이 -->
+    <div id="popupOverlay" class="popup-overlay hidden" onclick="closeAllPopups()"></div>
+
+    <!-- Submit Button -->
+    <div class="mt-10 text-center">
+        <button onclick="handleSave()" class="px-10 py-3 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600">저장하기</button>
+    </div>
 
 
-    </section>
+</section>
 </body>
 </html>
+
