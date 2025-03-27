@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>GET JOB - 프로젝트 작성</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script>
+        function toggleRole(role) {
+            const roleButtons = document.querySelectorAll(".role-button");
+            roleButtons.forEach(button => {
+                button.classList.remove("bg-blue-500", "text-white");
+                button.classList.add("bg-gray-200", "text-gray-600");
+            });
+            const selectedButton = document.getElementById(role);
+            selectedButton.classList.remove("bg-gray-200", "text-gray-600");
+            selectedButton.classList.add("bg-blue-500", "text-white");
+
+            const sectionContainer = document.getElementById("section-container");
+            if (role === "developer") {
+                sectionContainer.innerHTML = `
+                    <div class="bg-blue-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-blue-800">프로젝트 개요</h3>
+                        <textarea placeholder="프로젝트 개요를 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-blue-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-blue-800">주요 역할과 기여 사항</h3>
+                        <textarea placeholder="주요 역할과 기여 사항을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-blue-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-blue-800">문제와 해결과정</h3>
+                        <textarea placeholder="문제와 해결 과정을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-blue-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-blue-800">사용 기술 및 도구</h3>
+                        <textarea placeholder="사용 기술 및 도구를 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                        <div class="mt-4 bg-white p-4 rounded-md">
+                            <p class="text-gray-700">예시</p>
+                            <p class="text-gray-600">기술 스택: JavaScript, Python, React, Django 등</p>
+                            <p class="text-gray-600">개발 도구: VS Code, Git, Jira 등</p>
+                        </div>
+                    </div>
+                    <div class="bg-blue-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-blue-800">피드백</h3>
+                        <textarea placeholder="피드백을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-blue-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-blue-800">관련 자료 또는 링크</h3>
+                        <textarea placeholder="관련 자료 또는 링크를 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                `;
+            } else if (role === "pm") {
+                sectionContainer.innerHTML = `
+                    <div class="bg-orange-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-orange-800">프로젝트 개요</h3>
+                        <textarea placeholder="프로젝트 개요를 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-orange-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-orange-800">주요 역할과 기여 사항</h3>
+                        <textarea placeholder="주요 역할과 기여 사항을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-orange-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-orange-800">기획 의도 및 가치</h3>
+                        <textarea placeholder="기획 의도 및 가치를 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-orange-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-orange-800">문제 해결과 갈등 관리</h3>
+                        <textarea placeholder="문제 해결과 갈등 관리 방안을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-orange-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-orange-800">피드백</h3>
+                        <textarea placeholder="피드백을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-orange-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-orange-800">관련 자료 또는 링크</h3>
+                        <textarea placeholder="관련 자료 또는 링크를 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                `;
+            } else if (role === "designer") {
+                sectionContainer.innerHTML = `
+                    <div class="bg-green-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-green-800">프로젝트 개요</h3>
+                        <textarea placeholder="프로젝트 개요를 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-green-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-green-800">주요 역할과 기여 사항</h3>
+                        <textarea placeholder="주요 역할과 기여 사항을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-green-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-green-800">기획 의도 및 문제해결</h3>
+                        <textarea placeholder="기획 의도 및 문제해결 과정을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-green-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-green-800">사용 도구 및 기술</h3>
+                        <textarea placeholder="사용 도구 및 기술을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>  
+                    <div class="bg-green-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-green-800">피드백</h3>
+                        <textarea placeholder="피드백을 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                    <div class="bg-green-100 p-6 rounded-md">
+                        <h3 class="text-xl font-semibold text-green-800">관련 자료 또는 링크</h3>
+                        <textarea placeholder="관련 자료 또는 링크를 입력해주세요" class="w-full p-4 border rounded-md mt-4"></textarea>
+                    </div>
+                `;
+            }
+        }
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const imagePreview = document.getElementById("imagePreview");
+                imagePreview.innerHTML = `
+                    <img src="${e.target.result}" alt="이미지 미리보기" class="mt-4 w-48 h-48 object-cover rounded-md shadow-md">
+                `;
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 기본 페이지 설정 (개발자)
+        window.onload = function() {
+            toggleRole('developer');
+        };
+
+        // 이미지 미리보기 배열
+
+         // 이미지 미리보기 배열
+        let uploadedImages = [];
+
+// 이미지 미리보기 함수
+        function previewImages(event) {
+            const files = Array.from(event.target.files);
+
+    // 최대 5개 이미지 업로드 제한
+            if (uploadedImages.length + files.length > 5) {
+                alert("이미지는 최대 5개까지 업로드할 수 있습니다.");
+            return;
+            }
+
+        files.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+            const imageId = `image-${uploadedImages.length}`;
+            uploadedImages.push({ id: imageId, src: e.target.result });
+            updateImagePreview();
+            };
+        reader.readAsDataURL(file);
+        });
+    }
+
+// 이미지 미리보기 업데이트 함수
+function updateImagePreview() {
+    const imagePreview = document.getElementById("imagePreview");
+    imagePreview.innerHTML = uploadedImages
+        .map(image => `
+            <div id="${image.id}" class="relative w-48 h-48">
+                <img src="${image.src}" alt="이미지 미리보기" class="w-full h-full object-cover rounded-md shadow-md">
+                <button onclick="removeImage('${image.id}')" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs">X</button>
+            </div>
+        `).join('');
+}
+
+// 이미지 삭제 함수
+function removeImage(imageId) {
+    uploadedImages = uploadedImages.filter(image => image.id !== imageId);
+    updateImagePreview();
+}
+
+
+function openPopup(popupId) {
+        document.getElementById(popupId).classList.remove("hidden");
+        document.getElementById("popupOverlay").classList.remove("hidden");
+    }
+
+    // 팝업 닫기 함수
+    function closePopup(popupId) {
+        document.getElementById(popupId).classList.add("hidden");
+        document.getElementById("popupOverlay").classList.add("hidden");
+    }
+
+    // 모든 팝업 닫기
+    function closeAllPopups() {
+        closePopup("warningPopup");
+        closePopup("leavePopup");
+        closePopup("savePopup");
+    }
+
+    // 저장 완료 후 포트폴리오 페이지로 이동
+    function redirectToPortfolio() {
+        window.onbeforeunload = null; // 페이지 이탈 감지 해제
+        window.location.href = "portfoliopage.html";
+    }
+
+    // 사이트 나가기
+    function leaveSite() {
+        window.onbeforeunload = null; // 페이지 이탈 감지 해제
+        window.location.href = "portfoliopage.html";
+    }
+
+    // 저장 버튼 클릭 시 빈 칸 확인 및 처리
+    function handleSave() {
+        const inputs = document.querySelectorAll("input[type='text'], textarea");
+        let isEmpty = false;
+
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                isEmpty = true;
+            }
+        });
+
+        if (isEmpty) {
+            openPopup("warningPopup");
+        } else {
+            openPopup("savePopup"); // 저장 완료 팝업 열기
+        }
+    }
+
+    // 페이지 이탈 감지 (브라우저 닫기 또는 새로고침 시)
+    window.onbeforeunload = function (e) {
+        e.preventDefault();
+        openPopup("leavePopup");
+        return "변경사항이 저장되지 않을 수 있습니다.";
+    };
+</script>
+
+    <style>
+
+    .popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+
+
+</head>
+
+
+<body class="font-sans bg-gray-100">
+    <!-- Header -->
+    <header class="flex justify-between items-center p-6 bg-white shadow-md">
+        <a href="mainpage2.html" class="text-3xl font-bold">GET JOB</a>
+        <nav class="space-x-8 text-lg">
+            <a href="portfoliopage.html" class="hover:underline">포트폴리오</a>
+            <a href="#" class="hover:underline">AI 서비스</a>
+            <a href="#" class="hover:underline">로그아웃</a>
+        </nav>
+    </header>
+
+    <!-- Form Section -->
+    <section class="px-20 py-10">
+        <h2 class="text-4xl font-semibold mb-8">제목</h2>
+
+        <!-- Input Form -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <input type="text" placeholder="주제를 입력해주세요" class="col-span-2 p-4 border rounded-md">
+            <div class="grid grid-cols-2 gap-2">
+                <input type="date" class="p-4 border rounded-md">
+                <input type="date" class="p-4 border rounded-md">
+            </div>
+            <input type="text" placeholder="인원을 입력해주세요" class="col-span-2 p-4 border rounded-md">
+            <input type="text" placeholder="스킬을 입력해주세요" class="p-4 border rounded-md">
+            <div class="flex space-x-4">
+                <button id="developer" class="role-button px-6 py-2 bg-blue-500 text-white rounded-md" onclick="toggleRole('developer')">개발자</button>
+                <button id="pm" class="role-button px-6 py-2 bg-gray-200 text-gray-600 rounded-md" onclick="toggleRole('pm')">기획</button>
+                <button id="designer" class="role-button px-6 py-2 bg-gray-200 text-gray-600 rounded-md" onclick="toggleRole('designer')">디자이너</button>
+                
+            </div>
+            <button class="p-4 bg-gray-200 text-gray-600 rounded-md" onclick="document.getElementById('imageUpload').click();">이미지 업로드</button>
+            <input type="file" id="imageUpload" accept="image/*" class="hidden" multiple onchange="previewImages(event)">
+
+        </div>
+        <!-- 이미지 미리보기 영역 -->
+        <div id="imagePreview" class="mt-4 grid grid-cols-5 gap-4"></div>
+
+        <!-- Dynamic Section Container -->
+        <div id="section-container" class="space-y-6"></div>
+
+        <!-- 경고 팝업 (필수 입력란 미완성 시) -->
+<div id="warningPopup" class="popup hidden">
+    <p class="text-lg mb-4">완료된 프로젝트만 게시할 수 있습니다.</p>
+    <button onclick="closePopup('warningPopup')" class="px-4 py-2 bg-blue-500 text-white rounded-md">확인</button>
+</div>
+
+<!-- 이탈 확인 팝업 (사이트에서 나갈 때) -->
+<div id="leavePopup" class="popup hidden">
+    <p class="text-lg mb-2">사이트에서 나가시겠습니까?</p>
+    <p class="text-sm text-gray-600 mb-4">변경사항이 저장되지 않을 수 있습니다.</p>
+    <div class="flex justify-center space-x-4">
+        <button onclick="leaveSite()" class="px-4 py-2 bg-blue-500 text-white rounded-md">나가기</button>
+        <button onclick="closePopup('leavePopup')" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md">취소</button>
+    </div>
+</div>
+
+<!-- 저장 완료 팝업 -->
+<div id="savePopup" class="popup hidden">
+    <p class="text-lg mb-4">프로젝트가 성공적으로 저장되었습니다.</p>
+    <button onclick="redirectToPortfolio()" class="px-4 py-2 bg-blue-500 text-white rounded-md">확인</button>
+</div>
+
+<!-- 팝업 오버레이 -->
+<div id="popupOverlay" class="popup-overlay hidden" onclick="closeAllPopups()"></div>
+
+<!-- Submit Button -->
+<div class="mt-10 text-center">
+    <button onclick="handleSave()" class="px-10 py-3 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600">저장하기</button>
+</div>
+
+
+    </section>
+</body>
+</html>

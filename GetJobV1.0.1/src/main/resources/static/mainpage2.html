@@ -1,0 +1,54 @@
+<html lang="ko"> <head> <meta charset="UTF-8"> 
+    <title>GET JOB</title> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> </head> 
+    <body class="font-sans bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500"> 
+        <!-- Header --> <header class="flex justify-between items-center p-6 text-white"> 
+            <a href="mainpage2.html" class="text-3xl font-bold hover:underline">GET JOB</a> 
+            <nav class="space-x-8 text-lg"> <a href="portfoliopage.html" class="hover:underline">포트폴리오</a> 
+                <a href="#" class="hover:underline">AI 서비스</a> <a href="#" class="hover:underline">로그아웃</a> </nav> </header>
+
+    <!-- Main Section -->
+<section class="flex flex-col items-center text-center py-28">
+    <h1 class="text-5xl font-semibold text-white mb-4">손쉽게 관리하는 나만의 포트폴리오</h1>
+    <p class="text-white text-lg max-w-2xl mb-8">
+        쉽고 체계적인 포트폴리오 작성, 편리한 관리 기능, AI 기반 자기소개서 가이드와 면접 준비까지!<br>
+        완성도 높은 지원서를 위한 올인원 커리어 관리 플랫폼을 경험해보세요.
+    </p>
+    <button onclick="location.href='inputpage.html';" class="px-8 py-4 bg-white text-gray-800 rounded-full text-xl shadow-md hover:bg-gray-100">
+        포트폴리오 만들기 →
+    </button>
+    <div class="mt-10">
+        <img src="https://placehold.co/600x400" alt="3D desk setup with a computer and clouds" class="mt-12">
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4 px-20 py-16 bg-white">
+    <!-- Feature 1 -->
+    <button onclick="location.href='inputpage.html';" class="flex items-center justify-between p-6 bg-indigo-100 rounded-xl shadow-lg hover:bg-indigo-200">
+        <div>
+            <h3 class="text-xl font-semibold mb-2">포트폴리오 만들기 →</h3>
+            <p class="text-gray-700">새로운 포트폴리오를 만들어<br>전문성을 효과적으로 표현해보세요</p>
+        </div>
+        <img src="images/포폴 만들기.png" alt="Easel with canvas illustration" class="w-24">
+    </button>
+
+    <!-- Feature 2 -->
+    <button class="flex items-center justify-between p-6 bg-yellow-100 rounded-xl shadow-lg hover:bg-yellow-200">
+        <div>
+            <h3 class="text-xl font-semibold mb-2">자기소개서 작성하기 →</h3>
+            <p class="text-gray-700">AI 가이드와 함께<br>인상적인 자기소개서를 작성해보세요</p>
+        </div>
+        <img src="images/ai 자소서.png" alt="Document with pie chart and AI text" class="w-24">
+    </button>
+
+    <!-- Feature 3 -->
+    <button class="flex items-center justify-between p-6 bg-blue-100 rounded-xl shadow-lg hover:bg-blue-200">
+        <div>
+            <h3 class="text-xl font-semibold mb-2">면접 준비하기 →</h3>
+            <p class="text-gray-700">예상 질문을 통해 면접을 철저히 준비해보세요</p>
+        </div>
+        <img src="images/ai 면접.png" alt="AI avatar with a tie" class="w-24">
+    </button>
+</section>

@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML5
+    cache: false
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console/  # H2 ?? ?? ?? ??
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_UPPER=false;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # ??? ?? ????
+    open-in-view: true  # Lazy loading ?? ??? ?? ??
+    show-sql: true  # SQL ?? ??
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        use_sql_comments: true
+
+  resources:
+    static-locations: classpath:/static/, file:./src/main/resources/static/
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+### Swagger ###
+springdoc:
+  packages-to-scan: com.example.GetJobV101.controller  # ???? ??? ??
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /api-docs/
+    display-request-duration: true
+    operations-sorter: method
+    tags-sorter: alpha
