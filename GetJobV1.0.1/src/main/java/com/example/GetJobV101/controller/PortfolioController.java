@@ -116,6 +116,7 @@ public class PortfolioController {
     }
 
     // 포트폴리오 수정
+    // 포트폴리오 수정
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> updatePortfolio(
             @PathVariable Long id,
@@ -137,30 +138,39 @@ public class PortfolioController {
 
             Portfolio existingPortfolio = existingPortfolioOpt.get();
 
+            // 기존 이미지 경로 가져오기
+            List<String> existingImagePaths = existingPortfolio.getImagePaths();
+            if (existingImagePaths == null) {
+                existingImagePaths = new ArrayList<>();
+            }
+
             // 이미지 업로드 처리
             Path dirPath = Paths.get(uploadDir);
             if (!Files.exists(dirPath)) {
                 Files.createDirectories(dirPath);
             }
 
-            List<String> uploadedFileNames = new ArrayList<>();
+            List<String> uploadedFileNames = new ArrayList<>(existingImagePaths); // 기존 이미지 경로 유지
             List<String> allowedExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif");
 
-            for (MultipartFile file : images) {
-                String originalFilename = file.getOriginalFilename();
-                if (originalFilename == null || originalFilename.isEmpty()) {
-                    continue;
-                }
+            // 새로운 이미지가 있는 경우 추가 처리
+            if (images != null && images.length > 0) {
+                for (MultipartFile file : images) {
+                    String originalFilename = file.getOriginalFilename();
+                    if (originalFilename == null || originalFilename.isEmpty()) {
+                        continue;
+                    }
 
-                String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
-                if (!allowedExtensions.contains(extension)) {
-                    throw new IOException("지원하지 않는 파일 형식: " + originalFilename);
-                }
+                    String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+                    if (!allowedExtensions.contains(extension)) {
+                        throw new IOException("지원하지 않는 파일 형식: " + originalFilename);
+                    }
 
-                String uniqueFileName = UUID.randomUUID() + "_" + originalFilename;
-                Path filePath = dirPath.resolve(uniqueFileName);
-                file.transferTo(filePath.toFile());
-                uploadedFileNames.add(uniqueFileName);
+                    String uniqueFileName = UUID.randomUUID() + "_" + originalFilename;
+                    Path filePath = dirPath.resolve(uniqueFileName);
+                    file.transferTo(filePath.toFile());
+                    uploadedFileNames.add(uniqueFileName);
+                }
             }
 
             // DTO 생성 및 업데이트
@@ -175,5 +185,6 @@ public class PortfolioController {
                     .body("🚩 수정 실패: [" + e.getClass().getSimpleName() + "] " + e.getMessage());
         }
     }
+
 
 }

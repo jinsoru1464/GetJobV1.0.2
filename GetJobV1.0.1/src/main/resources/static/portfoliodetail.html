@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body class="bg-white text-gray-900">
-
 <!-- Navigation Bar -->
 <header class="border-b">
   <div class="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -23,102 +22,129 @@
 <!-- Main Content -->
 <main class="container mx-auto px-4 py-8">
   <!-- 제목 -->
-  <h2 id="portfolio-title" class="text-3xl font-bold mb-4">제목</h2>
+  <h2 id="portfolio-title" class="text-4xl font-bold mb-6">프로젝트 상세</h2>
 
   <!-- 설정 아이콘과 드롭다운 -->
-  <div class="relative inline-block text-left">
+  <div class="relative inline-block text-left mb-4 float-right">
     <button onclick="toggleDropdown()" class="p-2 rounded-full hover:bg-gray-200">
       <i class="fas fa-cog text-gray-700"></i>
     </button>
-    <div id="dropdown" class="hidden absolute right-0 mt-2 bg-white border rounded shadow-md">
+    <!-- 드롭다운 메뉴 -->
+    <div id="dropdown" class="hidden absolute right-0 mt-2 w-32 bg-white border rounded shadow-md">
       <a href="#" onclick="editPortfolio()" class="block px-4 py-2 hover:bg-gray-100">수정하기</a>
       <a href="#" onclick="deletePortfolio()" class="block px-4 py-2 hover:bg-gray-100">삭제하기</a>
     </div>
   </div>
 
-  <!-- 포트폴리오 정보 -->
-  <div id="portfolio-details" class="mt-6 space-y-2">
-    <!-- 상세 정보가 여기에 표시됩니다 -->
+  <!-- 포트폴리오 정보와 이미지 -->
+  <div class="flex justify-between items-start gap-8 mt-4">
+    <!-- 정보 블록 -->
+    <div class="flex-1 space-y-4">
+      <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+        <div>
+          <p class="text-lg"><strong>주제:</strong> <span id="project-subject"></span></p>
+        </div>
+        <div>
+          <p class="text-lg"><strong>기간:</strong> <span id="project-period"></span></p>
+        </div>
+        <div>
+          <p class="text-lg"><strong>인원:</strong> <span id="project-members"></span></p>
+        </div>
+        <div>
+          <p class="text-lg"><strong>스킬:</strong> <span id="project-skills"></span></p>
+        </div>
+        <div>
+          <p class="text-lg"><strong>분야:</strong> <span id="project-role" class="inline-block bg-blue-100 text-blue-600 px-2 py-1 rounded-full"></span></p>
+        </div>
+      </div>
+      <!-- 설명 블록 -->
+      <div id="description-list" class="mt-4 space-y-2"></div>
+    </div>
+    <!-- 이미지 블록 -->
+    <div class="w-80 h-80 flex-shrink-0">
+      <img id="project-image" src="https://placehold.co/300x300" alt="프로젝트 이미지" class="w-full h-full object-cover rounded-md">
+    </div>
   </div>
 </main>
 
 <script>
+  // 드롭다운 토글 함수
+  function toggleDropdown() {
+    const dropdown = document.getElementById("dropdown");
+    dropdown.classList.toggle("hidden");
+  }
+
   // URL에서 포트폴리오 ID 추출
   const urlParams = new URLSearchParams(window.location.search);
   const portfolioId = urlParams.get("id");
 
-  // 드롭다운 토글 함수
-  function toggleDropdown() {
-      const dropdown = document.getElementById("dropdown");
-      dropdown.classList.toggle("hidden");
-  }
-
-  // 수정하기 함수
-  function editPortfolio() {
-      window.location.href = `editpage.html?id=${portfolioId}`;
-  }
-
-  // 삭제하기 함수
-  function deletePortfolio() {
-      if (confirm("정말 삭제하시겠습니까?")) {
-          fetch(`http://localhost:8080/api/portfolios/${portfolioId}`, {
-              method: "DELETE",
-          })
-          .then(response => {
-              if (response.ok) {
-                  alert("포트폴리오가 삭제되었습니다.");
-                  window.location.href = "portfoliopage.html";
-              } else {
-                  alert("삭제 실패");
-              }
-          })
-          .catch(error => {
-              console.error("삭제 중 오류 발생:", error);
-              alert("삭제 중 오류가 발생했습니다.");
-          });
-      }
-  }
-
   // 포트폴리오 상세 정보 로드
-// 포트폴리오 상세 정보 로드
+  // 포트폴리오 상세 정보 로드
 async function loadPortfolioDetails() {
-try {
-  const response = await fetch(`http://localhost:8080/api/portfolios/${portfolioId}`);
+    try {
+        const response = await fetch(`http://localhost:8080/api/portfolios/${portfolioId}`);
+        if (!response.ok) throw new Error("서버 응답 오류");
 
-  if (!response.ok) throw new Error("서버 응답 오류");
+        const portfolio = await response.json();
 
-  const portfolio = await response.json();
+        // 데이터 바인딩
+        document.getElementById("portfolio-title").innerText = portfolio.title;
+        document.getElementById("project-subject").innerText = portfolio.title;
+        document.getElementById("project-period").innerText = `${portfolio.startDate} - ${portfolio.endDate}`;
+        document.getElementById("project-members").innerText = portfolio.teamSize;
+        document.getElementById("project-skills").innerText = portfolio.skills;
+        document.getElementById("project-role").innerText = portfolio.role;
 
-  // ✅ 제목 설정
-  document.getElementById("portfolio-title").innerText = portfolio.title;
+        // 설명 리스트 추가
+        const descriptionList = document.getElementById("description-list");
+        descriptionList.innerHTML = portfolio.descriptions.map(desc => `
+            <div class="bg-gray-100 p-3 rounded-md">
+                ${desc}
+            </div>
+        `).join("");
 
-  const details = `
-      <p><strong>주제:</strong> ${portfolio.title}</p>
-      <p><strong>기간:</strong> ${portfolio.startDate} - ${portfolio.endDate}</p>
-      <p><strong>인원:</strong> ${portfolio.teamSize}명</p>
-      <p><strong>스킬:</strong> ${portfolio.skills}</p>
-      <p><strong>분야:</strong> <span class="text-blue-500">${portfolio.role}</span></p>
-      <img src="${portfolio.imagePaths[0] || 'https://placehold.co/600x400'}" class="mt-4 w-64 h-64 object-cover rounded-md">
-      <div class="mt-4">
-          ${portfolio.descriptions.map(desc => `
-              <p>${desc}</p>
-          `).join('')}
-      </div>
-  `;
-  document.getElementById("portfolio-details").innerHTML = details;
-} catch (error) {
-  console.error("포트폴리오 데이터를 불러오는 중 오류 발생:", error);
-  alert("상세 데이터를 불러오지 못했습니다.");
+        // 이미지 경로 처리
+        if (portfolio.imagePaths && portfolio.imagePaths.length > 0) {
+            document.getElementById("project-image").src = portfolio.imagePaths[0];
+        }
+    } catch (error) {
+        console.error("포트폴리오 데이터를 불러오는 중 오류 발생:", error);
+        alert("상세 데이터를 불러오지 못했습니다.");
+    }
 }
-}
 
-// 수정하기 버튼 클릭 시 수정 모드로 입력 페이지로 이동
+// 수정하기
 function editPortfolio() {
-window.location.href = `inputpage.html?id=${portfolioId}`;
+    const urlParams = new URLSearchParams(window.location.search);
+    const portfolioId = urlParams.get("id");
+
+    if (portfolioId) {
+        window.location.href = `inputpage.html?id=${portfolioId}`;
+    } else {
+        alert("포트폴리오 ID를 찾을 수 없습니다!");
+    }
 }
 
 
-  // 초기 로드
+  // 삭제하기
+  async function deletePortfolio() {
+    if (confirm("정말 삭제하시겠습니까?")) {
+      try {
+        const response = await fetch(`/api/portfolios/${portfolioId}`, { method: "DELETE" });
+        if (response.ok) {
+          alert("포트폴리오가 삭제되었습니다.");
+          window.location.href = "portfoliopage.html";
+        } else {
+          throw new Error("삭제 실패");
+        }
+      } catch (error) {
+        console.error("삭제 중 오류 발생:", error);
+        alert("삭제 실패: " + error.message);
+      }
+    }
+  }
+
+  // 페이지 로드 시 데이터 불러오기
   document.addEventListener("DOMContentLoaded", loadPortfolioDetails);
 </script>
 </body>
