@@ -215,103 +215,142 @@ function openPopup(popupId) {
     });
 
 
-    async function handleSave() {
+// URL에서 포트폴리오 ID 추출
+const urlParams = new URLSearchParams(window.location.search);
+const portfolioId = urlParams.get("id");
+
+// 페이지 로드 시 수정 모드라면 기존 데이터 로딩
+if (portfolioId) {
+    loadPortfolioData();
+}
+
+// 수정 모드일 때 기존 데이터 불러오기
+async function loadPortfolioData() {
+    try {
+        const response = await fetch(`http://localhost:8080/api/portfolios/${portfolioId}`);
+        if (!response.ok) throw new Error("데이터 불러오기 실패");
+        const data = await response.json();
+
+        // 기존 데이터를 입력 폼에 세팅
+        document.querySelector("input[placeholder='주제를 입력해주세요']").value = data.title;
+        const dates = document.querySelectorAll("input[type='date']");
+        dates[0].value = data.startDate;
+        dates[1].value = data.endDate;
+        document.querySelector("input[placeholder='인원을 입력해주세요']").value = data.teamSize;
+        document.querySelector("input[placeholder='스킬을 입력해주세요']").value = data.skills;
+        document.querySelector(`.role-button#${data.role}`).click();
+
+        // 설명 세팅
+        const descriptionContainer = document.getElementById("section-container");
+        descriptionContainer.innerHTML = data.descriptions.map(desc => `
+            <textarea class="w-full p-4 border rounded-md mt-4">${desc}</textarea>
+        `).join("");
+
+        // 이미지 미리보기 설정
+        uploadedImages = data.imagePaths.map((src, index) => ({ id: `image-${index}`, src }));
+        updateImagePreview();
+
+    } catch (error) {
+        console.error("데이터 불러오기 오류:", error);
+        alert("데이터를 불러오는 중 오류가 발생했습니다.");
+    }
+}
+
+// 💾 저장 또는 수정 함수
+async function handleSave() {
     const inputs = document.querySelectorAll("input[type='text'], textarea");
     let isEmpty = false;
 
-    // Validate all text and textarea fields
     inputs.forEach(input => {
-        if (!input.value.trim()) {
-            isEmpty = true;
-        }
+        if (!input.value.trim()) isEmpty = true;
     });
 
     if (isEmpty) {
-        openPopup("warningPopup");
+        alert("모든 필드를 입력해야 합니다!");
         return;
     }
 
     const title = document.querySelector("input[placeholder='주제를 입력해주세요']").value;
-    const startDate = document.querySelectorAll("input[type='date']")[0].value;
-    const endDate = document.querySelectorAll("input[type='date']")[1].value;
+    const dates = document.querySelectorAll("input[type='date']");
+    const startDate = dates[0].value;
+    const endDate = dates[1].value;
     const teamSize = parseInt(document.querySelector("input[placeholder='인원을 입력해주세요']").value);
     const skills = document.querySelector("input[placeholder='스킬을 입력해주세요']").value;
     const role = document.querySelector(".role-button.bg-blue-500").id;
 
-    // Date validation
     if (new Date(startDate) > new Date(endDate)) {
         alert("시작 날짜가 종료 날짜보다 늦을 수 없습니다!");
         return;
     }
 
-    // Team size validation
     if (isNaN(teamSize) || teamSize <= 0) {
         alert("팀 인원은 숫자로 입력해야 합니다!");
         return;
     }
 
-    // Image upload handling
-    const images = document.getElementById("imageUpload").files;
     const formData = new FormData();
+    formData.append("title", title);
+    formData.append("startDate", startDate);
+    formData.append("endDate", endDate);
+    formData.append("teamSize", teamSize);
+    formData.append("skills", skills);
+    formData.append("role", role);
 
+    // 설명 추가
+    const descriptions = Array.from(document.querySelectorAll("#section-container textarea"))
+        .map(textarea => textarea.value);
+    descriptions.forEach(desc => formData.append("descriptions", desc));
+
+    // 이미지 추가
+    const images = document.getElementById("imageUpload").files;
     if (images.length > 0) {
         for (let i = 0; i < images.length; i++) {
             formData.append("images", images[i]);
         }
+    }
 
-        try {
-            const imageResponse = await fetch("/api/upload-images", {
+    try {
+        let response;
+        let redirectUrl;
+
+        if (portfolioId) {
+            // 수정 요청 (PUT)
+            response = await fetch(`/api/portfolios/${portfolioId}`, {
+                method: "PUT",
+                body: formData
+            });
+            redirectUrl = `portfoliodetail.html?id=${portfolioId}`;
+        } else {
+            // 새로 만들기 요청 (POST)
+            response = await fetch("/api/portfolios", {
                 method: "POST",
                 body: formData
             });
 
-            if (!imageResponse.ok) {
-                alert("이미지 업로드 실패!");
-                return;
+            if (response.ok) {
+                const createdPortfolio = await response.json();
+                redirectUrl = `portfoliodetail.html?id=${createdPortfolio.id}`;
             }
-        } catch (error) {
-            console.error("이미지 업로드 오류:", error);
-            alert("네트워크 오류 또는 서버 문제로 인해 이미지 업로드에 실패했습니다.");
-            return;
         }
-    }
-
-    // Collect descriptions from textareas
-    const descriptions = Array.from(document.querySelectorAll("#section-container textarea"))
-        .map(textarea => textarea.value);
-
-    const data = {
-        title,
-        startDate,
-        endDate,
-        teamSize,
-        skills,
-        role,
-        descriptions
-    };
-
-    try {
-        // Project data submission
-        const response = await fetch("/api/portfolios", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
 
         if (response.ok) {
-            openPopup("savePopup"); // Open save confirmation popup
+            window.location.href = redirectUrl;
         } else {
-            const errorData = await response.json();
+            const errorData = await response.text();
             console.error("저장 실패:", errorData);
-            alert(`저장 실패: ${errorData.message || "알 수 없는 오류"}`);
+            alert(`저장 실패: ${errorData}`);
         }
     } catch (error) {
         console.error("오류 발생:", error);
         alert("네트워크 오류 또는 서버 문제로 인해 저장에 실패했습니다.");
     }
 }
+
+
+
+
+
+
 
 
     </script>
