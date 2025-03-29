@@ -18,6 +18,18 @@
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<!-- AWS Spring Cloud Dependencies -->
+			<dependency>
+				<groupId>io.awspring.cloud</groupId>
+				<artifactId>spring-cloud-aws-dependencies</artifactId>
+				<version>3.0.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<!-- Spring Boot JPA -->
 		<dependency>
@@ -35,6 +47,19 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- AWS S3 Integration -->
+		<dependency>
+			<groupId>io.awspring.cloud</groupId>
+			<artifactId>spring-cloud-aws-starter-s3</artifactId>
+		</dependency>
+
+		<!-- AWS Core Dependency -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-aws</artifactId>
+			<version>2.2.6.RELEASE</version>
 		</dependency>
 
 		<!-- DevTools -->
@@ -67,13 +92,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Testing -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- OpenAPI/Swagger -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -81,13 +99,12 @@
 			<version>2.1.0</version>
 		</dependency>
 
+		<!-- Testing -->
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<scope>provided</scope>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
-
-
 	</dependencies>
 
 	<build>
@@ -117,5 +134,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

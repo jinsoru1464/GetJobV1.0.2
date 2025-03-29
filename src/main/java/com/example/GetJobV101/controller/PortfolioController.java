@@ -1,8 +1,11 @@
 package com.example.GetJobV101.controller;
 
+import com.example.GetJobV101.PresignedUrlRequest;
 import com.example.GetJobV101.dto.PortfolioDto;
 import com.example.GetJobV101.entity.Portfolio;
 import com.example.GetJobV101.service.PortfolioService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -184,6 +187,14 @@ public class PortfolioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("🚩 수정 실패: [" + e.getClass().getSimpleName() + "] " + e.getMessage());
         }
+    }
+
+    // Presigned URL 요청 API
+    @PostMapping("/preSignedUrl")
+    @Operation(summary = "Presigned URL 요청 API", description = "S3에 이미지를 업로드하기 위한 Presigned URL을 요청합니다.")
+    public ResponseEntity<Map<String, String>> getPresignedUrl(@Valid @RequestBody PresignedUrlRequest request) {
+        Map<String, String> preSignedUrl = portfolioService.getPresignedUrl("image", request.getImageName());
+        return ResponseEntity.status(HttpStatus.OK).body(preSignedUrl);
     }
 
 

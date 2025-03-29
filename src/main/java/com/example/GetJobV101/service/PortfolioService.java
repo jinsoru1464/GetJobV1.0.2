@@ -1,23 +1,32 @@
 package com.example.GetJobV101.service;
 
+import com.amazonaws.HttpMethod;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.example.GetJobV101.dto.PortfolioDto;
 import com.example.GetJobV101.entity.Portfolio;
 import com.example.GetJobV101.repository.PortfolioRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
 
-    public PortfolioService(PortfolioRepository portfolioRepository) {
-        this.portfolioRepository = portfolioRepository;
-    }
+    @Value("${spring.cloud.aws.s3.bucket}")
+    private String bucket;
+
+    private final AmazonS3 amazonS3;
 
     // ✅ 포트폴리오 저장 메소드
     public Portfolio savePortfolio(PortfolioDto dto) {
@@ -45,6 +54,52 @@ public class PortfolioService {
                 .orElseThrow(() -> new RuntimeException("포트폴리오를 찾을 수 없습니다."));
         portfolio.getImagePaths().addAll(imagePaths);
         portfolioRepository.save(portfolio);
+    }
+
+    // 파일 업로드용 임시 url인 presigned url을 생성해서 프론트한테 반환
+    public Map<String, String> getPresignedUrl(String prefix, String fileName) {
+        if (!prefix.isEmpty()) {
+            fileName = createPath(prefix, fileName);
+        }
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, fileName);
+        URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+        return Map.of("preSignedUrl", url.toString());
+    }
+
+
+    // presigned url 생성 (put 메소드로)
+    private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String fileName) {
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(getPresignedUrlExpiration());
+
+        generatePresignedUrlRequest.addRequestParameter(
+                Headers.S3_CANNED_ACL,
+                CannedAccessControlList.PublicRead.toString()
+        );
+
+        return generatePresignedUrlRequest;
+    }
+
+    // presigned 유효기간은 2분.
+    private Date getPresignedUrlExpiration() {
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 2;
+        expiration.setTime(expTimeMillis);
+        return expiration;
+    }
+
+    // UUID로 고유한 파일 id 만들기
+    private String createFileId() {
+        return UUID.randomUUID().toString();
+    }
+
+    // 고유한 파일 id를 써서 또 고유한 path를 만들기
+    private String createPath(String prefix, String fileName) {
+        String fileId = createFileId();
+        return String.format("%s/%s", prefix, fileId + "-" + fileName);
     }
 
     // ✅ 포트폴리오 목록 조회 메소드
