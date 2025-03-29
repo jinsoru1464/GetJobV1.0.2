@@ -37,4 +37,8 @@ public class Portfolio {
     @ElementCollection
     @CollectionTable(name = "portfolio_images", joinColumns = @JoinColumn(name = "portfolio_id"))
     private List<String> imagePaths = new ArrayList<>();    // 🔥 반드시 초기화 필수
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }
