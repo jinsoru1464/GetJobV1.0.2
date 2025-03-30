@@ -80,50 +80,50 @@
 
   // 포트폴리오 상세 정보 로드
   // 포트폴리오 상세 정보 로드
-async function loadPortfolioDetails() {
+  async function loadPortfolioDetails() {
     try {
-        const response = await fetch(`http://localhost:8080/api/portfolios/${portfolioId}`);
-        if (!response.ok) throw new Error("서버 응답 오류");
+      const response = await fetch(`http://localhost:8080/api/portfolios/${portfolioId}`);
+      if (!response.ok) throw new Error("서버 응답 오류");
 
-        const portfolio = await response.json();
+      const portfolio = await response.json();
 
-        // 데이터 바인딩
-        document.getElementById("portfolio-title").innerText = portfolio.title;
-        document.getElementById("project-subject").innerText = portfolio.title;
-        document.getElementById("project-period").innerText = `${portfolio.startDate} - ${portfolio.endDate}`;
-        document.getElementById("project-members").innerText = portfolio.teamSize;
-        document.getElementById("project-skills").innerText = portfolio.skills;
-        document.getElementById("project-role").innerText = portfolio.role;
+      // 데이터 바인딩
+      document.getElementById("portfolio-title").innerText = portfolio.title;
+      document.getElementById("project-subject").innerText = portfolio.title;
+      document.getElementById("project-period").innerText = `${portfolio.startDate} - ${portfolio.endDate}`;
+      document.getElementById("project-members").innerText = portfolio.teamSize;
+      document.getElementById("project-skills").innerText = portfolio.skills;
+      document.getElementById("project-role").innerText = portfolio.role;
 
-        // 설명 리스트 추가
-        const descriptionList = document.getElementById("description-list");
-        descriptionList.innerHTML = portfolio.descriptions.map(desc => `
+      // 설명 리스트 추가
+      const descriptionList = document.getElementById("description-list");
+      descriptionList.innerHTML = portfolio.descriptions.map(desc => `
             <div class="bg-gray-100 p-3 rounded-md">
                 ${desc}
             </div>
         `).join("");
 
-        // 이미지 경로 처리
-        if (portfolio.imagePaths && portfolio.imagePaths.length > 0) {
-            document.getElementById("project-image").src = portfolio.imagePaths[0];
-        }
+      // 이미지 경로 처리
+      if (portfolio.imagePaths && portfolio.imagePaths.length > 0) {
+        document.getElementById("project-image").src = portfolio.imagePaths[0];
+      }
     } catch (error) {
-        console.error("포트폴리오 데이터를 불러오는 중 오류 발생:", error);
-        alert("상세 데이터를 불러오지 못했습니다.");
+      console.error("포트폴리오 데이터를 불러오는 중 오류 발생:", error);
+      alert("상세 데이터를 불러오지 못했습니다.");
     }
-}
+  }
 
-// 수정하기
-function editPortfolio() {
+  // 수정하기
+  function editPortfolio() {
     const urlParams = new URLSearchParams(window.location.search);
     const portfolioId = urlParams.get("id");
 
     if (portfolioId) {
-        window.location.href = `inputpage.html?id=${portfolioId}`;
+      window.location.href = `inputpage.html?id=${portfolioId}`;
     } else {
-        alert("포트폴리오 ID를 찾을 수 없습니다!");
+      alert("포트폴리오 ID를 찾을 수 없습니다!");
     }
-}
+  }
 
 
   // 삭제하기

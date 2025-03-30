@@ -1,12 +1,13 @@
 package com.example.GetJobV101.service;
 
-import com.amazonaws.HttpMethod;
+/*import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;*/
 import com.example.GetJobV101.dto.PortfolioDto;
 import com.example.GetJobV101.entity.Portfolio;
+import com.example.GetJobV101.entity.User;
 import com.example.GetJobV101.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,12 +27,16 @@ public class PortfolioService {
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
 
-    private final AmazonS3 amazonS3;
+    /*private final AmazonS3 amazonS3;*/
+
+
+
 
     // ✅ 포트폴리오 저장 메소드
     public Portfolio savePortfolio(PortfolioDto dto) {
         Portfolio portfolio = new Portfolio();
         portfolio.setTitle(dto.getTitle());
+        portfolio.setSubject(dto.getSubject());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         portfolio.setStartDate(LocalDate.parse(dto.getStartDate(), formatter));
@@ -43,8 +48,13 @@ public class PortfolioService {
         portfolio.setDescriptions(dto.getDescriptions());
 
         // ✅ 이미지 경로 저장
-        portfolio.setImagePaths(dto.getImagePaths());
+        List<String> imagePaths = dto.getImagePaths();
+        if (imagePaths == null || imagePaths.isEmpty()) {
+            imagePaths = List.of("no-image.jpg");
+        }
+        portfolio.setImagePaths(imagePaths);
 
+        portfolio.setUser(dto.getUser());
         return portfolioRepository.save(portfolio);
     }
 
@@ -57,7 +67,7 @@ public class PortfolioService {
     }
 
     // 파일 업로드용 임시 url인 presigned url을 생성해서 프론트한테 반환
-    public Map<String, String> getPresignedUrl(String prefix, String fileName) {
+    /*public Map<String, String> getPresignedUrl(String prefix, String fileName) {
         if (!prefix.isEmpty()) {
             fileName = createPath(prefix, fileName);
         }
@@ -65,11 +75,15 @@ public class PortfolioService {
         GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, fileName);
         URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
         return Map.of("preSignedUrl", url.toString());
-    }
+    }*/
 
 
-    // presigned url 생성 (put 메소드로)
-    private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String fileName) {
+
+
+
+
+    //presigned url 생성 (put 메소드로)
+    /*private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String fileName) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName)
                 .withMethod(HttpMethod.PUT)
                 .withExpiration(getPresignedUrlExpiration());
@@ -80,7 +94,7 @@ public class PortfolioService {
         );
 
         return generatePresignedUrlRequest;
-    }
+    }*/
 
     // presigned 유효기간은 2분.
     private Date getPresignedUrlExpiration() {
@@ -107,6 +121,10 @@ public class PortfolioService {
         return portfolioRepository.findAll();
     }
 
+    public List<Portfolio> getPortfoliosByUser(User user) {
+        return portfolioRepository.findAllByUser(user);
+    }
+
     // ✅ 단일 포트폴리오 조회 메소드
     public Optional<Portfolio> getPortfolioById(Long id) {
         return portfolioRepository.findById(id);
@@ -129,6 +147,7 @@ public class PortfolioService {
 
             // 제목, 날짜, 인원, 스킬, 역할 등 업데이트
             existingPortfolio.setTitle(dto.getTitle());
+            existingPortfolio.setSubject(dto.getSubject());
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             existingPortfolio.setStartDate(LocalDate.parse(dto.getStartDate(), formatter));
@@ -142,7 +161,15 @@ public class PortfolioService {
             existingPortfolio.setDescriptions(dto.getDescriptions());
 
             // 이미지 경로 업데이트
-            existingPortfolio.setImagePaths(dto.getImagePaths());
+            List<String> imagePaths = dto.getImagePaths();
+            if (imagePaths == null || imagePaths.isEmpty()) {
+                imagePaths = List.of("no-image.jpg");
+            }
+            existingPortfolio.setImagePaths(imagePaths);
+
+            if (dto.getUser() != null) {
+                existingPortfolio.setUser(dto.getUser());
+            }
 
             // 수정된 포트폴리오 저장
             return portfolioRepository.save(existingPortfolio);

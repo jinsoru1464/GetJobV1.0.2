@@ -38,36 +38,36 @@
 
 <script>
     // 포트폴리오 카드 렌더링 함수
-async function renderPortfolioCards() {
-try {
-    const response = await fetch("http://localhost:8080/api/portfolios");
+    async function renderPortfolioCards() {
+        try {
+            const response = await fetch("http://localhost:8080/api/portfolios");
 
-    if (!response.ok) throw new Error("서버 응답 오류");
+            if (!response.ok) throw new Error("서버 응답 오류");
 
-    const portfolios = await response.json();
-    const container = document.getElementById('portfolio-container');
-    container.innerHTML = ''; // 기존 카드 초기화
+            const portfolios = await response.json();
+            const container = document.getElementById('portfolio-container');
+            container.innerHTML = ''; // 기존 카드 초기화
 
-    if (portfolios.length === 0) {
-        container.innerHTML = `
+            if (portfolios.length === 0) {
+                container.innerHTML = `
             <div class="col-span-full text-center text-gray-600 py-12">
                 <p class="text-lg">아직 등록된 포트폴리오가 없습니다.</p>
             </div>
         `;
-        return;
-    }
+                return;
+            }
 
-    portfolios.forEach((portfolio) => {
-        const card = document.createElement('div');
-        card.className = "bg-white shadow-md rounded-lg overflow-hidden cursor-pointer";
+            portfolios.forEach((portfolio) => {
+                const card = document.createElement('div');
+                card.className = "bg-white shadow-md rounded-lg overflow-hidden cursor-pointer";
 
-        // ✅ 카드 클릭 시 상세 페이지로 이동
-        card.onclick = () => {
-            window.location.href = `portfolioDetail.html?id=${portfolio.id}`;
-        };
+                // ✅ 카드 클릭 시 상세 페이지로 이동
+                card.onclick = () => {
+                    window.location.href = `portfolioDetail.html?id=${portfolio.id}`;
+                };
 
-        // 카드 HTML 구성
-        card.innerHTML = `
+                // 카드 HTML 구성
+                card.innerHTML = `
             <img src="${portfolio.imagePaths[0] || 'https://placehold.co/600x400'}" alt="${portfolio.title}" class="w-full h-48 object-cover">
             <div class="p-4">
                 <span class="text-sm bg-blue-100 text-blue-500 rounded px-2 py-1">${portfolio.role}</span>
@@ -76,16 +76,16 @@ try {
             </div>
         `;
 
-        container.appendChild(card);
-    });
-} catch (error) {
-    console.error("데이터를 불러오는 중 오류 발생:", error);
-    alert("포트폴리오 데이터를 불러오는 데 실패했습니다.");
-}
-}
+                container.appendChild(card);
+            });
+        } catch (error) {
+            console.error("데이터를 불러오는 중 오류 발생:", error);
+            alert("포트폴리오 데이터를 불러오는 데 실패했습니다.");
+        }
+    }
 
-// 초기 로딩 시 카드 렌더링
-document.addEventListener("DOMContentLoaded", renderPortfolioCards);
+    // 초기 로딩 시 카드 렌더링
+    document.addEventListener("DOMContentLoaded", renderPortfolioCards);
 
 </script>
 

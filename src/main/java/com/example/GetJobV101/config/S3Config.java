@@ -1,3 +1,4 @@
+/*
 package com.example.GetJobV101.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -36,3 +37,4 @@ public class S3Config {
                 .build();
     }
 }
+*/
